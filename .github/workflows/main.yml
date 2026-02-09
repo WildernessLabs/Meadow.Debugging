@@ -13,68 +13,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-host:
-    runs-on: windows-latest
-    name: Build Meadow Debugging Host
-    
-    steps:
-    - name: Checkout Meadow.Debugging repo
-      uses: actions/checkout@v4
-      with:
-        path: Meadow.Debugging
-        submodules: true
-
-    - name: Checkout VSCode_Meadow_Extension side-by-side
-      uses: actions/checkout@v4
-      with:
-        repository: WildernessLabs/VSCode_Meadow_Extension
-        path: VSCode_Meadow_Extension
-        ref: dominique-DAPRefactor
-
-    - name: Checkout VS_Win_Meadow_Extension side-by-side
-      uses: actions/checkout@v4
-      with:
-        repository: WildernessLabs/VS_Win_Meadow_Extension
-        path: VS_Win_Meadow_Extension
-        ref: dominique-DAPRefactor
-
-    - name: Checkout Rider_Meadow_Plugin side-by-side
-      uses: actions/checkout@v4
-      with:
-        repository: WildernessLabs/Rider_Meadow_Plugin
-        path: Rider_Meadow_Plugin
-        ref: dominique-DAPRefactor
-
-    - name: Setup .NET 8.0.x
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-
-    - name: Restore Meadow.Debugging dependencies
-      run: dotnet restore Meadow.Debugging/Meadow.Debugging.sln
-      
-    - name: Build Meadow.Debugging.Host (Release)
-      run: dotnet build Meadow.Debugging/Meadow.Debugging.Host/Meadow.Debugging.Host.csproj -c Release --no-restore
-      
-    - name: Build Meadow.Debugging.Host (Debug)
-      run: dotnet build Meadow.Debugging/Meadow.Debugging.Host/Meadow.Debugging.Host.csproj -c Debug --no-restore
-      
-    - name: Upload Host artifacts (Debug)
-      uses: actions/upload-artifact@v4
-      with:
-        name: meadow-debugging-host-debug
-        path: |
-          Meadow.Debugging/Meadow.Debugging.Host/bin/Debug/net8.0/meadow-debugging.*
-          
-    - name: Upload Host artifacts (Release)
-      uses: actions/upload-artifact@v4
-      with:
-        name: meadow-debugging-host-release
-        path: |
-          Meadow.Debugging/Meadow.Debugging.Host/bin/Release/net8.0/meadow-debugging.*
-
   build-ide-extensions:
-    needs: build-host
     runs-on: windows-latest
     strategy:
       matrix:
@@ -90,38 +29,55 @@ jobs:
         submodules: true
 
     - name: Checkout VSCode_Meadow_Extension side-by-side
+      if: matrix.ide == 'vscode'
       uses: actions/checkout@v4
       with:
         repository: WildernessLabs/VSCode_Meadow_Extension
         path: VSCode_Meadow_Extension
-        ref: ${{ github.ref_name }}
+        ref: dominique-DAPRefactor
 
     - name: Checkout VS_Win_Meadow_Extension side-by-side
+      if: matrix.ide == 'vs2022'
       uses: actions/checkout@v4
       with:
         repository: WildernessLabs/VS_Win_Meadow_Extension
         path: VS_Win_Meadow_Extension
-        ref: ${{ github.ref_name }}
+        ref: dominique-DAPRefactor
 
     - name: Checkout Rider_Meadow_Plugin side-by-side
+      if: matrix.ide == 'rider'
       uses: actions/checkout@v4
       with:
         repository: WildernessLabs/Rider_Meadow_Plugin
         path: Rider_Meadow_Plugin
-        ref: ${{ github.ref_name }}
+        ref: dominique-DAPRefactor
 
     - name: Checkout Meadow.CLI side-by-side
       uses: actions/checkout@v4
       with:
         repository: WildernessLabs/Meadow.CLI
         path: Meadow.CLI
-        ref: ${{ github.ref == 'refs/heads/main' && 'main' || 'develop' }}
+        ref: develop
 
     - name: Checkout Meadow.Contracts side-by-side
       uses: actions/checkout@v4
       with:
         repository: WildernessLabs/Meadow.Contracts
         path: Meadow.Contracts
+        ref: develop
+    
+    - name: Checkout Meadow.Units side-by-side
+      uses: actions/checkout@v4
+      with:
+        repository: WildernessLabs/Meadow.Units
+        path: Meadow.Units
+        ref: develop
+
+    - name: Checkout Meadow.Logging side-by-side
+      uses: actions/checkout@v4
+      with:
+        repository: WildernessLabs/Meadow.Logging
+        path: Meadow.Logging
         ref: develop
 
     - name: Setup .NET 8.0.x
@@ -131,6 +87,11 @@ jobs:
 
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v2
+
+    - name: Install FallBack Sources
+      run: |
+        nuget install Microsoft.SymbolStore -Version 1.0.411401 -FallbackSource "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json"
+      # May not be needed for now, but keeping it around nuget install Microsoft.FileFormats -Version 1.0.411401 -FallbackSource "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json"
 
     - name: Setup Node.js 20 (for VSCode)
       if: matrix.ide == 'vscode'
@@ -150,15 +111,13 @@ jobs:
       with:
         vs-version: '[17.0, 18.0)'
 
+    # Build Meadow.Debugging (copies DAP files to sibling extension repos)
+    - name: Build Meadow.Debugging
+      run: |
+        dotnet restore Meadow.Debugging/Meadow.Debugging.sln
+        dotnet build Meadow.Debugging/Meadow.Debugging.sln -c Debug --no-restore -p:TargetIDE=${{ matrix.ide }}
+
     # VSCode Build
-    - name: Restore VSCode Extension dependencies
-      if: matrix.ide == 'vscode'
-      run: dotnet restore VSCode_Meadow_Extension/src/csharp/VSCodeMeadow.sln
-
-    - name: Build VSCode Extension
-      if: matrix.ide == 'vscode'
-      run: dotnet build VSCode_Meadow_Extension/src/csharp/VSCodeMeadow.sln -c Release --no-restore
-
     - name: Build VSCode WebPack
       if: matrix.ide == 'vscode'
       run: |
@@ -200,6 +159,11 @@ jobs:
           VS_Win_Meadow_Extension/VS_Meadow_Extension/VS_Meadow_Extension.2022/bin/Release/*.vsix
 
     # Rider Build
+    - name: Prepare build
+      if: matrix.ide == 'rider'
+      run: ./gradlew prepare
+      working-directory: Rider_Meadow_Plugin
+        
     - name: Build Rider Backend
       if: matrix.ide == 'rider'
       run: dotnet build Rider_Meadow_Plugin -c Release
@@ -226,23 +190,5 @@ jobs:
       if: matrix.ide == 'rider'
       uses: actions/upload-artifact@v4
       with:
-        name: meadow-rider-plugin-${{ env.plugin_version }}
+        name: meadow-rider-plugin-${{ env.IDE_TOOLS_RELEASE_VERSION }}
         path: Rider_Meadow_Plugin/build/distributions/unpacked
-
-  test-all:
-    needs: [build-host, build-ide-extensions]
-    runs-on: windows-latest
-    name: Verify All Artifacts
-    
-    steps:
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-
-    - name: List all artifacts
-      run: |
-        Get-ChildItem -Recurse
-        Write-Host "=== Verification ==="
-        Write-Host "Host artifacts downloaded: $(Test-Path '*meadow-debugging-host*')"
-        Write-Host "VSCode extension downloaded: $(Test-Path '*meadow-vscode*')"
-        Write-Host "VS2022 extension downloaded: $(Test-Path '*meadow-vs2022*')"
-        Write-Host "Rider plugin downloaded: $(Test-Path '*meadow-rider*')"

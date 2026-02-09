@@ -1,4 +1,3 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
@@ -8,6 +7,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.Debugging.DAP", "Meadow.Debugging.DAP\Meadow.Debugging.DAP.csproj", "{B2C3D4E5-F678-9012-BCDE-F12345678901}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meadow.Debugging.Host", "Meadow.Debugging.Host\Meadow.Debugging.Host.csproj", "{C3D4E5F6-7890-1234-CDEF-123456789012}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Debugging", "externals\debugger-libs\Mono.Debugging\Mono.Debugging.csproj", "{B82E87DC-B410-06DD-02C7-EFD4A8A2C6DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Debugging.Soft", "externals\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj", "{0C0ECB7C-64AA-EAD7-3766-E01B3FADF80A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Tooling.Core", "..\Meadow.CLI\Source\Meadow.Tooling.Core\Meadow.Tooling.Core.csproj", "{71BF3BC6-FDCC-1FDC-19D1-75BD78A18A64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.HCom", "..\Meadow.CLI\Source\Meadow.HCom\Meadow.HCom.csproj", "{119B98BB-B788-BD47-9191-0B859072B607}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,5 +34,27 @@ Global
 		{C3D4E5F6-7890-1234-CDEF-123456789012}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3D4E5F6-7890-1234-CDEF-123456789012}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3D4E5F6-7890-1234-CDEF-123456789012}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B82E87DC-B410-06DD-02C7-EFD4A8A2C6DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B82E87DC-B410-06DD-02C7-EFD4A8A2C6DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B82E87DC-B410-06DD-02C7-EFD4A8A2C6DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B82E87DC-B410-06DD-02C7-EFD4A8A2C6DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C0ECB7C-64AA-EAD7-3766-E01B3FADF80A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C0ECB7C-64AA-EAD7-3766-E01B3FADF80A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C0ECB7C-64AA-EAD7-3766-E01B3FADF80A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C0ECB7C-64AA-EAD7-3766-E01B3FADF80A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71BF3BC6-FDCC-1FDC-19D1-75BD78A18A64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71BF3BC6-FDCC-1FDC-19D1-75BD78A18A64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71BF3BC6-FDCC-1FDC-19D1-75BD78A18A64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71BF3BC6-FDCC-1FDC-19D1-75BD78A18A64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{119B98BB-B788-BD47-9191-0B859072B607}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{119B98BB-B788-BD47-9191-0B859072B607}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{119B98BB-B788-BD47-9191-0B859072B607}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{119B98BB-B788-BD47-9191-0B859072B607}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {92880A9D-D210-4C38-8FAF-0F8E596CC86F}
 	EndGlobalSection
 EndGlobal

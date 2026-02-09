@@ -11,6 +11,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="Mono.Cecil" Version="0.11.5" />
 		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
 	</ItemGroup>
 
@@ -19,32 +20,46 @@
 		<ProjectReference Include="..\Meadow.Debugging.DAP\Meadow.Debugging.DAP.csproj" />
 	</ItemGroup>
 
-	<!-- After building, copy vscode-meadow.exe and supporting files to all IDE extension locations
-	     so they have the latest debugger host without needing to copy manually. -->
+	<!-- After building, copy meadow-debugging output to IDE extension locations.
+	     Use -p:TargetIDE=vscode|vs2022|rider to copy to a specific IDE only.
+	     Default (no parameter) copies to all three. -->
+	<PropertyGroup>
+		<TargetIDE Condition="'$(TargetIDE)' == ''"></TargetIDE>
+	</PropertyGroup>
+
 	<Target Name="CopyToIDEExtensions" AfterTargets="Build">
 		<ItemGroup>
 			<HostOutput Include="$(OutputPath)**\*.*" />
 		</ItemGroup>
-		
+
 		<!-- Copy to VSCode extension -->
-		<MakeDir Directories="..\..\VSCode_Meadow_Extension\src\csharp\bin\$(Configuration)\net8.0" />
-		<Copy SourceFiles="@(HostOutput)" 
-		      DestinationFolder="..\..\VSCode_Meadow_Extension\src\csharp\bin\$(Configuration)\net8.0\%(RecursiveDir)" 
+		<MakeDir Condition="'$(TargetIDE)' == '' Or '$(TargetIDE)' == 'vscode'"
+		         Directories="..\..\VSCode_Meadow_Extension\src\csharp\bin\$(Configuration)\net8.0" />
+		<Copy Condition="'$(TargetIDE)' == '' Or '$(TargetIDE)' == 'vscode'"
+		      SourceFiles="@(HostOutput)"
+		      DestinationFolder="..\..\VSCode_Meadow_Extension\src\csharp\bin\$(Configuration)\net8.0\%(RecursiveDir)"
 		      SkipUnchangedFiles="true" />
-		<Message Text="Copied Host output to VSCode extension" Importance="high" />
-		
+		<Message Condition="'$(TargetIDE)' == '' Or '$(TargetIDE)' == 'vscode'"
+		         Text="Copied Host output to VSCode extension" Importance="high" />
+
 		<!-- Copy to VS2022 extension DapAdapter folder -->
-		<MakeDir Directories="..\..\VS_Win_Meadow_Extension\VS_Meadow_Extension\VS_Meadow_Extension.2022\DapAdapter" />
-		<Copy SourceFiles="@(HostOutput)" 
-		      DestinationFolder="..\..\VS_Win_Meadow_Extension\VS_Meadow_Extension\VS_Meadow_Extension.2022\DapAdapter\%(RecursiveDir)" 
+		<MakeDir Condition="'$(TargetIDE)' == '' Or '$(TargetIDE)' == 'vs2022'"
+		         Directories="..\..\VS_Win_Meadow_Extension\VS_Meadow_Extension\VS_Meadow_Extension.2022\DapAdapter" />
+		<Copy Condition="'$(TargetIDE)' == '' Or '$(TargetIDE)' == 'vs2022'"
+		      SourceFiles="@(HostOutput)"
+		      DestinationFolder="..\..\VS_Win_Meadow_Extension\VS_Meadow_Extension\VS_Meadow_Extension.2022\DapAdapter\%(RecursiveDir)"
 		      SkipUnchangedFiles="true" />
-		<Message Text="Copied Host output to VS2022 extension DapAdapter" Importance="high" />
-		
-		<!-- Copy to Rider plugin .NET debugging integration -->
-		<MakeDir Directories="..\..\Rider_Meadow_Plugin\src\dotnet\bin\$(Configuration)\net8.0" />
-		<Copy SourceFiles="@(HostOutput)" 
-		      DestinationFolder="..\..\Rider_Meadow_Plugin\src\dotnet\bin\$(Configuration)\net8.0\%(RecursiveDir)" 
+		<Message Condition="'$(TargetIDE)' == '' Or '$(TargetIDE)' == 'vs2022'"
+		         Text="Copied Host output to VS2022 extension DapAdapter" Importance="high" />
+
+		<!-- Copy to Rider plugin -->
+		<MakeDir Condition="'$(TargetIDE)' == '' Or '$(TargetIDE)' == 'rider'"
+		         Directories="..\..\Rider_Meadow_Plugin\src\dotnet\bin\$(Configuration)\net8.0" />
+		<Copy Condition="'$(TargetIDE)' == '' Or '$(TargetIDE)' == 'rider'"
+		      SourceFiles="@(HostOutput)"
+		      DestinationFolder="..\..\Rider_Meadow_Plugin\src\dotnet\bin\$(Configuration)\net8.0\%(RecursiveDir)"
 		      SkipUnchangedFiles="true" />
-		<Message Text="Copied Host output to Rider plugin" Importance="high" />
+		<Message Condition="'$(TargetIDE)' == '' Or '$(TargetIDE)' == 'rider'"
+		         Text="Copied Host output to Rider plugin" Importance="high" />
 	</Target>
 </Project>

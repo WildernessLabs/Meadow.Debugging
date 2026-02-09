@@ -11,16 +11,14 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Mono.Cecil" Version="0.11.5" />
+		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Meadow.Debugging.Core\Meadow.Debugging.Core.csproj" />
-		<ProjectReference Include="..\externals\debugger-libs\Mono.Debugger.Soft\Mono.Debugger.Soft.csproj" />
-		<ProjectReference Include="..\externals\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj" />
+    <ProjectReference Include="..\externals\debugger-libs\Mono.Debugging.Soft\Mono.Debugging.Soft.csproj" />
 		<ProjectReference Include="..\externals\debugger-libs\Mono.Debugging\Mono.Debugging.csproj" />
-		<ProjectReference Include="..\..\Meadow.CLI\Source\Meadow.Tooling.Core\Meadow.Tooling.Core.csproj" />
 	</ItemGroup>
 
 </Project>

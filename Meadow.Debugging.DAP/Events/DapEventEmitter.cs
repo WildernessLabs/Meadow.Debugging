@@ -52,7 +52,7 @@ namespace Meadow.Debugging.DAP.Events
             }
             else
             {
-                _protocolServer.SendEvent(new ProgressUpdateEvent(_currentProgressId, $"Deploying: {fileName}", (int)percentage));
+                _protocolServer.SendEvent(new ProgressUpdateEvent(_currentProgressId, $"{percentage}%", (int)percentage));
             }
 
             if (percentage >= 100 && _currentProgressId != null)
@@ -75,7 +75,7 @@ namespace Meadow.Debugging.DAP.Events
             if (source.StartsWith("stdout", StringComparison.OrdinalIgnoreCase) ||
                 source.StartsWith("info", StringComparison.OrdinalIgnoreCase))
             {
-                EmitOutput(OutputCategory.Meadow, message);
+                EmitOutput(OutputCategory.Meadow, $"  {message}");
             }
             else
             {
