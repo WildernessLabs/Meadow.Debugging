@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>10.0</LangVersion>
+		<OutputType>Exe</OutputType>
+		<AssemblyName>meadow-debugging</AssemblyName>
+		<Nullable>enable</Nullable>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Reference the shared debugging libraries -->
+		<ProjectReference Include="..\Meadow.Debugging.DAP\Meadow.Debugging.DAP.csproj" />
+	</ItemGroup>
+
+	<!-- After building, copy vscode-meadow.exe and supporting files to all IDE extension locations
+	     so they have the latest debugger host without needing to copy manually. -->
+	<Target Name="CopyToIDEExtensions" AfterTargets="Build">
+		<ItemGroup>
+			<HostOutput Include="$(OutputPath)**\*.*" />
+		</ItemGroup>
+		
+		<!-- Copy to VSCode extension -->
+		<MakeDir Directories="..\..\VSCode_Meadow_Extension\src\csharp\bin\$(Configuration)\net8.0" />
+		<Copy SourceFiles="@(HostOutput)" 
+		      DestinationFolder="..\..\VSCode_Meadow_Extension\src\csharp\bin\$(Configuration)\net8.0\%(RecursiveDir)" 
+		      SkipUnchangedFiles="true" />
+		<Message Text="Copied Host output to VSCode extension" Importance="high" />
+		
+		<!-- Copy to VS2022 extension DapAdapter folder -->
+		<MakeDir Directories="..\..\VS_Win_Meadow_Extension\VS_Meadow_Extension\VS_Meadow_Extension.2022\DapAdapter" />
+		<Copy SourceFiles="@(HostOutput)" 
+		      DestinationFolder="..\..\VS_Win_Meadow_Extension\VS_Meadow_Extension\VS_Meadow_Extension.2022\DapAdapter\%(RecursiveDir)" 
+		      SkipUnchangedFiles="true" />
+		<Message Text="Copied Host output to VS2022 extension DapAdapter" Importance="high" />
+		
+		<!-- Copy to Rider plugin .NET debugging integration -->
+		<MakeDir Directories="..\..\Rider_Meadow_Plugin\src\dotnet\bin\$(Configuration)\net8.0" />
+		<Copy SourceFiles="@(HostOutput)" 
+		      DestinationFolder="..\..\Rider_Meadow_Plugin\src\dotnet\bin\$(Configuration)\net8.0\%(RecursiveDir)" 
+		      SkipUnchangedFiles="true" />
+		<Message Text="Copied Host output to Rider plugin" Importance="high" />
+	</Target>
+</Project>
