@@ -12,16 +12,16 @@ namespace VsCodeMeadowUtil
 	public class DeviceData
 	{
 		[JsonProperty("name")]
-		public string Name { get; set; }
+		public string Name { get; set; } = null!;
 
 		[JsonProperty("serial")]
-		public string Serial { get; set; }
+		public string Serial { get; set; } = null!;
 
 		[JsonProperty("platform")]
-		public string Platform { get; set; }
+		public string Platform { get; set; } = null!;
 
 		[JsonProperty("version")]
-		public string Version { get; set; }
+		public string Version { get; set; } = null!;
 	}
 
 	public class SimpleResult
@@ -35,16 +35,16 @@ namespace VsCodeMeadowUtil
 	}
 
 	public class LaunchData {
-		
-		public string ProjectPath { get; set; }
-		public string ProjectConfiguration { get; set; }
-		public string MSBuildPropertyFile { get; set; }
+
+		public string ProjectPath { get; set; } = null!;
+		public string ProjectConfiguration { get; set; } = null!;
+		public string MSBuildPropertyFile { get; set; } = null!;
 
 		public int DebugPort { get; set; } = -1;
 
-		public string Serial { get;set; }
+		public string Serial { get;set; } = null!;
 
-		public IReadOnlyDictionary<string, string> MSBuildProperties { get; set; }
+		public IReadOnlyDictionary<string, string> MSBuildProperties { get; set; } = null!;
 
 		public LaunchData ()
 		{
@@ -61,7 +61,7 @@ namespace VsCodeMeadowUtil
 
 		private Dictionary<string, string> debugInfoProps = new Dictionary<string, string>();
 
-		public string GetBuildProperty(string propertyName, string defaultValue = null)
+		public string? GetBuildProperty(string propertyName, string? defaultValue = null)
 		{
 			if (debugInfoProps.Count <= 0)
 			{
@@ -138,7 +138,7 @@ namespace VsCodeMeadowUtil
 			return dflt;
 		}
 
-		private static string getString (dynamic args, string property, string dflt = null)
+		private static string? getString (dynamic args, string property, string? dflt = null)
 		{
 			var s = (string)args [property];
 			if (s == null) {
@@ -159,9 +159,9 @@ namespace VsCodeMeadowUtil
 				var d = new Dictionary<string, string>();
 				foreach (var propertyDescriptor in System.ComponentModel.TypeDescriptor.GetProperties(c))
 				{
-					string obj = propertyDescriptor?.GetValue(c);
+					string? obj = propertyDescriptor?.GetValue(c) as string;
 					if (!string.IsNullOrEmpty(obj))
-						d.Add(propertyDescriptor.Name, obj);
+						d.Add(propertyDescriptor!.Name, obj);
 				}
 
 				return d;

@@ -36,7 +36,7 @@ namespace VsCodeMeadowUtil
 				Command = command
 			};
 
-			object responseObject = null;
+			object? responseObject = null;
 
 			try
 			{

@@ -64,7 +64,7 @@ namespace Meadow.Debugging.DAP.Session
         private DebuggingServer? _meadowDebuggingServer;
         private string _previousLogMessage = string.Empty;
 
-        private IDebugEventEmitter? _eventEmitter;
+        private IDebugEventEmitter _eventEmitter;
         private readonly LaunchPropertyKeys _launchPropertyKeys;
 
         /// <summary>
@@ -375,7 +375,7 @@ namespace Meadow.Debugging.DAP.Session
 
             SendErrorResponse(response, 3002, $"Launch failed: {errorMsg}");
 
-            await Disconnect(response, null);
+            await Disconnect(response, (dynamic?)null);
 
             Terminate("Launch failed.");
         }

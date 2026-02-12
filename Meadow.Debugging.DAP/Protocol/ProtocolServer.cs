@@ -162,7 +162,7 @@ namespace Meadow.Debugging.DAP.Protocol
                                 catch (Exception dispatchEx)
                                 {
                                     DapLogger.Log(">>> DISPATCH OUTER EXCEPTION: {0}: {1}", dispatchEx.GetType().Name, dispatchEx.Message);
-                                    DapLogger.Log(">>> DISPATCH OUTER EXCEPTION stack: {0}", dispatchEx.StackTrace);
+                                    DapLogger.Log(">>> DISPATCH OUTER EXCEPTION stack: {0}", dispatchEx.StackTrace ?? "No stack trace available");
                                     // Send error response as fallback — DispatchRequest's inner catch
                                     // normally handles this, but if something escapes, we need to respond.
                                     try

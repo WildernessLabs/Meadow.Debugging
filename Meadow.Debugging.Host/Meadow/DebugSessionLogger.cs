@@ -19,8 +19,8 @@ namespace VsCodeMeadowUtil
 
 		public Action<string> Callback { get; }
 
-		public IDisposable BeginScope<TState>(TState state)
-			=> default;
+		public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+			=> null;
 
 		public bool IsEnabled(LogLevel logLevel)
 		{
@@ -30,7 +30,7 @@ namespace VsCodeMeadowUtil
 			return logLevel >= _minLogLevel;
 		}
 
-		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
 		{
 			if (!IsEnabled(logLevel))
 			{

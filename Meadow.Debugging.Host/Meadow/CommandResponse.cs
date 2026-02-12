@@ -12,15 +12,15 @@ namespace VsCodeMeadowUtil
 		}
 
 		[JsonProperty("id")]
-		public string Id { get; set; }
+		public string Id { get; set; } = null!;
 
 		[JsonProperty("command")]
-		public string Command { get; set; }
+		public string Command { get; set; } = null!;
 
 		[JsonProperty("error")]
-		public string Error { get; set; }
+		public string Error { get; set; } = null!;
 
 		[JsonProperty("response")]
-		public object Response { get; set; }
+		public object Response { get; set; } = null!;
 	}
 }

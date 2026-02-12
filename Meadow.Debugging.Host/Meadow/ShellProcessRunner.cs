@@ -23,12 +23,12 @@ namespace VSCodeDebug
 		readonly List<string> standardError;
 		readonly Process process;
 
-		public Action<string> OutputHandler { get; private set; }
+		public Action<string>? OutputHandler { get; private set; }
 
 		public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 		public static bool IsOsx => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
-		public ShellProcessRunner(string executable, string args, System.Threading.CancellationToken cancellationToken, Action<string> outputHandler = null)
+		public ShellProcessRunner(string executable, string args, System.Threading.CancellationToken cancellationToken, Action<string>? outputHandler = null)
 		{
 			OutputHandler = outputHandler;
 
