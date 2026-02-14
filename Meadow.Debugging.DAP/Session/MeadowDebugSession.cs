@@ -472,55 +472,108 @@ namespace Meadow.Debugging.DAP.Session
 
         public override async Task Disconnect(Response response, dynamic arguments)
         {
-            if (_meadowDeployer != null)
-                _meadowDeployer.Dispose();
-
-            if (_meadowDebuggingServer != null)
-            {
-                try { await _meadowDebuggingServer.StopListening(); } catch { }
-
-                try { _meadowDebuggingServer.Dispose(); }
-                finally { _meadowDebuggingServer = null; }
-            }
-
-            if (_ctsDeployMeadow != null && !_ctsDeployMeadow.IsCancellationRequested)
-                _ctsDeployMeadow.Cancel();
-
-            if (_attachMode)
-            {
-                lock (_lock)
-                {
-                    if (_session != null)
-                    {
-                        _debuggeeExecuting = true;
-                        _breakpoints.Clear();
-                        _session.Breakpoints.Clear();
-                        _session.Continue();
-                        _session = null;
-                    }
-                }
-            }
-            else
-            {
-                // Let's not leave dead Mono processes behind...
-                if (_process != null)
-                {
-                    _process.Kill();
-                    _process = null;
-                }
-                else
-                {
-                    PauseDebugger();
-                    DebuggerKill();
-
-                    while (!_debuggeeKilled)
-                    {
-                        System.Threading.Thread.Sleep(10);
-                    }
-                }
-            }
-
+            // Send response immediately to prevent IDE timeout.
+            // All cleanup happens asynchronously in the background.
             SendResponse(response);
+
+            // Perform cleanup in background task to avoid blocking the IDE
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    // Critical: Resume device first while everything is still running
+                    if (_attachMode)
+                    {
+                        lock (_lock)
+                        {
+                            if (_session != null)
+                            {
+                                try
+                                {
+                                    _debuggeeExecuting = true;
+                                    _breakpoints.Clear();
+                                    _session.Breakpoints.Clear();
+                                    _session.Continue();
+                                    _session = null;
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log($"[Disconnect] Exception resuming session: {ex.GetType().Name}: {ex.Message}");
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (_process != null)
+                        {
+                            _process.Kill();
+                            _process = null;
+                        }
+                        else
+                        {
+                            PauseDebugger();
+                            DebuggerKill();
+
+                            int waitCount = 0;
+                            while (!_debuggeeKilled && waitCount < 100)
+                            {
+                                System.Threading.Thread.Sleep(10);
+                                waitCount++;
+                            }
+                        }
+                    }
+
+                    // Now that device is resumed, stop the debugging server
+                    if (_meadowDebuggingServer != null)
+                    {
+                        try
+                        {
+                            await _meadowDebuggingServer.StopListening();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log($"[Disconnect] Exception stopping listener: {ex.GetType().Name}: {ex.Message}");
+                        }
+
+                        try
+                        {
+                            _meadowDebuggingServer.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log($"[Disconnect] Exception disposing server: {ex.GetType().Name}: {ex.Message}");
+                        }
+                        finally
+                        {
+                            _meadowDebuggingServer = null;
+                        }
+                    }
+
+                    // Dispose deployer
+                    if (_meadowDeployer != null)
+                    {
+                        try
+                        {
+                            _meadowDeployer.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log($"[Disconnect] Exception disposing deployer: {ex.GetType().Name}: {ex.Message}");
+                        }
+                    }
+
+                    // Finally, cancel the deployment token
+                    if (_ctsDeployMeadow != null && !_ctsDeployMeadow.IsCancellationRequested)
+                    {
+                        _ctsDeployMeadow.Cancel();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log($"[Disconnect] Error during cleanup: {ex.GetType().Name}: {ex.Message}");
+                }
+            });
         }
 
         public override void Continue(Response response, dynamic args)
